@@ -1,0 +1,47 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "AWS Bedrock Configuration",
+        "description": "Configure your AWS Bedrock connection",
+        "data": {
+          "aws_region": "AWS Region",
+          "aws_access_key_id": "AWS Access Key ID",
+          "aws_secret_access_key": "AWS Secret Access Key",
+          "aws_session_token": "AWS Session Token (optional)",
+          "model_id": "Bedrock Model ID"
+        }
+      }
+    },
+    "error": {
+      "invalid_credentials": "Invalid AWS credentials",
+      "access_denied": "Access denied. Check your IAM permissions",
+      "cannot_connect": "Cannot connect to AWS Bedrock",
+      "unknown": "Unknown error occurred"
+    },
+    "abort": {
+      "already_configured": "AWS Bedrock is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AWS Bedrock Options",
+        "data": {
+          "model_id": "Bedrock Model ID",
+          "selected_language": "Language",
+          "prompt": "System Prompt Template",
+          "max_tokens": "Max Tokens",
+          "temperature": "Temperature",
+          "top_p": "Top P",
+          "top_k": "Top K",
+          "refresh_prompt_per_turn": "Refresh prompt each turn",
+          "remember_conversation": "Remember conversation",
+          "remember_num_interactions": "Number of interactions to remember",
+          "max_tool_call_iterations": "Max tool call iterations",
+          "llm_hass_api": "Home Assistant LLM API"
+        }
+      }
+    }
+  }
+}

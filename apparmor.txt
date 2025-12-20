@@ -1,0 +1,57 @@
+#include <tunables/global>
+
+profile aws_bedrock_conversation flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  capability net_bind_service,
+  capability setgid,
+  capability setuid,
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # Access to options.json and other service settings
+  /data/** rw,
+
+  # Python
+  /usr/bin/python3* ix,
+  /usr/lib/python3*/** r,
+
+  # Application files
+  /bedrock_agent.py r,
+  /run.sh r,
+
+  # Network access for AWS Bedrock
+  network tcp,
+  network udp,
+  network inet stream,
+  network inet6 stream,
+
+  # DNS
+  /etc/resolv.conf r,
+  /etc/hosts r,
+  /etc/ssl/openssl.cnf r,
+
+  # SSL/TLS certificates
+  /etc/ssl/certs/** r,
+  /usr/share/ca-certificates/** r,
+
+  # Proc and sys
+  /proc/sys/kernel/hostname r,
+  /sys/kernel/mm/transparent_hugepage/hpage_pmd_size r,
+}

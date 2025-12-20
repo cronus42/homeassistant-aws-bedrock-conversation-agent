@@ -1,0 +1,22 @@
+configuration:
+  aws_region:
+    name: AWS Region
+    description: The AWS region where Bedrock is available (e.g., us-east-1, us-west-2)
+  model_id:
+    name: Model ID
+    description: The Bedrock model ID to use (e.g., anthropic.claude-3-5-sonnet-20241022-v2:0)
+  aws_access_key_id:
+    name: AWS Access Key ID
+    description: Your AWS access key ID with Bedrock permissions
+  aws_secret_access_key:
+    name: AWS Secret Access Key
+    description: Your AWS secret access key
+  temperature:
+    name: Temperature
+    description: Controls randomness in responses (0-1). Higher values make output more random.
+  max_tokens:
+    name: Max Tokens
+    description: Maximum number of tokens in the response (100-100000)
+  aws_session_token:
+    name: AWS Session Token (Optional)
+    description: Optional session token for temporary credentials

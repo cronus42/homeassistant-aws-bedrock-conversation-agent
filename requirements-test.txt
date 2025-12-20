@@ -1,0 +1,17 @@
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-homeassistant-custom-component>=0.13.0
+pytest-mock>=3.11.0
+
+# Home Assistant
+homeassistant>=2024.12.0
+
+# Home Assistant conversation dependencies
+hassil>=2.0.0
+home-assistant-intents>=2024.12.0
+
+# Dependencies
+boto3>=1.35.0
+webcolors>=24.8.0
