@@ -298,12 +298,12 @@ class BedrockClient:
     
     def _build_bedrock_messages(
         self,
-        conversation: list[conversation.Content]
+        conversation_content: list[conversation.Content]
     ) -> list[dict[str, Any]]:
         """Convert Home Assistant conversation to Bedrock message format."""
         messages = []
         
-        for content in conversation:
+        for content in conversation_content:
             if isinstance(content, conversation.SystemContent):
                 # System prompt is handled separately in Bedrock
                 continue
