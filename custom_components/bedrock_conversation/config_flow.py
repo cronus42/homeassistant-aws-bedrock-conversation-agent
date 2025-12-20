@@ -190,12 +190,16 @@ class BedrockConversationOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
         
-        # Get available LLM APIs
-        llm_apis = [
-            selector.SelectOptionDict(value=api.id, label=api.name)
-            for api in llm.async_get_apis(self.hass)
-        ]
-        
+        # Get available LLM APIs (fall back to the built-in Bedrock API id)
+        try:
+            llm_api_ids = [api.id for api in llm.async_get_apis(self.hass)]
+        except Exception as err:  # pragma: no cover - defensive only
+            _LOGGER.error("Error listing LLM APIs: %s", err)
+            llm_api_ids = []
+
+        if HOME_LLM_API_ID not in llm_api_ids:
+            llm_api_ids.append(HOME_LLM_API_ID)
+
         options_schema = vol.Schema({
             vol.Optional(
                 CONF_MODEL_ID,
@@ -286,7 +290,7 @@ class BedrockConversationOptionsFlow(config_entries.OptionsFlow):
                 default=self.config_entry.options.get(CONF_LLM_HASS_API, HOME_LLM_API_ID)
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
-                    options=llm_apis,
+                    options=llm_api_ids,
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
             ),
