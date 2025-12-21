@@ -1,24 +1,27 @@
-{
-  "domain": "bedrock_conversation",
-  "name": "AWS Bedrock Conversation",
-  "version": "1.0.8",
-  "codeowners": [
-    "cronus@stolenshoe.com"
-  ],
-  "config_flow": true,
-  "dependencies": [
-    "conversation",
-    "ai_task"
-  ],
-  "after_dependencies": [
-    "assist_pipeline",
-    "intent"
-  ],
-  "documentation": "https://github.com/cronus42/homeassistant-aws-bedrock-conversation-agent",
-  "integration_type": "service",
-  "iot_class": "cloud_polling",
-  "requirements": [
-    "boto3>=1.35.0",
-    "webcolors>=24.8.0"
-  ]
-}
+### /home/cronus/repos/homeassistant/homeassistant-aws-bedrock-conversation-agent/./custom_components/bedrock_conversation/manifest.json
+```json
+1: {
+2:   "domain": "bedrock_conversation",
+3:   "name": "AWS Bedrock Conversation",
+4:   "version": "1.0.9",
+5:   "codeowners": [
+6:     "cronus@stolenshoe.com"
+7:   ],
+8:   "config_flow": true,
+9:   "dependencies": [
+10:     "conversation",
+11:     "ai_task"
+12:   ],
+13:   "after_dependencies": [
+14:     "assist_pipeline",
+15:     "intent"
+16:   ],
+17:   "documentation": "https://github.com/cronus42/homeassistant-aws-bedrock-conversation-agent",
+18:   "integration_type": "service",
+19:   "iot_class": "cloud_polling",
+20:   "requirements": [
+21:     "boto3>=1.35.0",
+22:     "webcolors>=24.8.0"
+23:   ]
+24: }
+```
