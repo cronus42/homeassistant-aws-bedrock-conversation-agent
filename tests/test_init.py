@@ -1,5 +1,6 @@
 """Test the Bedrock Conversation initialization."""
 import pytest
+from unittest.mock import MagicMock
 
 from custom_components.bedrock_conversation import HassServiceTool
 from custom_components.bedrock_conversation.const import (
@@ -21,7 +22,10 @@ def test_default_model():
 
 def test_hass_service_tool_definition():
     """Test HassServiceTool definition."""
-    tool = HassServiceTool()
+    # Create a mock hass object
+    mock_hass = MagicMock()
+    
+    tool = HassServiceTool(mock_hass)
     assert tool.name == SERVICE_TOOL_NAME
     assert tool.description
     assert hasattr(tool, "parameters")

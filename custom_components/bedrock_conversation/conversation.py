@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Literal
 
 from homeassistant.components import conversation
 from homeassistant.config_entries import ConfigEntry
@@ -71,3 +71,14 @@ class BedrockConversationAgent(conversation.AbstractConversationAgent):
         """Load intents for a language."""
         # Implementation will go here
         pass
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities,
+) -> None:
+    """Set up conversation agent."""
+    agent = BedrockConversationAgent(hass, config_entry)
+    conversation.async_set_agent(hass, config_entry, agent)
+    async_add_entities([agent])
