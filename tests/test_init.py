@@ -1,4 +1,4 @@
-"""Test integration constants and basic setup."""
+"""Test the Bedrock Conversation initialization."""
 import pytest
 
 from custom_components.bedrock_conversation import HassServiceTool
@@ -22,7 +22,6 @@ def test_default_model():
 def test_hass_service_tool_definition():
     """Test HassServiceTool definition."""
     tool = HassServiceTool()
-    
     assert tool.name == SERVICE_TOOL_NAME
     assert tool.description
     assert hasattr(tool, "parameters")

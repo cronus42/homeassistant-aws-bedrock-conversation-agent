@@ -1,17 +1,6 @@
-# Testing
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
-pytest-cov>=4.1.0
-pytest-homeassistant-custom-component>=0.13.0
-pytest-mock>=3.11.0
-
-# Home Assistant (use a version that exists on PyPI)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-homeassistant-custom-component>=0.12.0
 homeassistant>=2024.3.0
-
-# Home Assistant conversation dependencies
-hassil>=2.0.0
-home-assistant-intents>=2024.3.0
-
-# Dependencies
-boto3>=1.35.0
-webcolors>=24.8.0
+boto3>=1.28.0
+webcolors>=1.12.0
