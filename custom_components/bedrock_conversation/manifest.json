@@ -1,7 +1,7 @@
 {
   "domain": "bedrock_conversation",
   "name": "AWS Bedrock Conversation",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "codeowners": ["cronus@stolenshoe.com"],
   "config_flow": true,
   "dependencies": ["conversation", "ai_task"],
