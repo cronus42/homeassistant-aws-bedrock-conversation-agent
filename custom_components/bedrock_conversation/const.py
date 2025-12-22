@@ -26,14 +26,14 @@ CONF_EXTRA_ATTRIBUTES_TO_EXPOSE: Final = "extra_attributes_to_expose"
 CONF_LLM_HASS_API: Final = "llm_hass_api"
 CONF_SELECTED_LANGUAGE: Final = "selected_language"
 
-DEFAULT_MODEL: Final = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-DEFAULT_MODEL_ID: Final = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+DEFAULT_MODEL: Final = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+DEFAULT_MODEL_ID: Final = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 DEFAULT_PROMPT: Final = ""
 DEFAULT_MAX_TOKENS: Final = 4096
 DEFAULT_TEMPERATURE: Final = 1.0
 DEFAULT_TOP_P: Final = 0.999
 DEFAULT_TOP_K: Final = 250
-DEFAULT_AWS_REGION: Final = "us-east-1"
+DEFAULT_AWS_REGION: Final = "us-west-2"
 DEFAULT_REFRESH_SYSTEM_PROMPT: Final = True
 DEFAULT_REMEMBER_CONVERSATION: Final = True
 DEFAULT_REMEMBER_NUM_INTERACTIONS: Final = 10
@@ -152,13 +152,8 @@ ALLOWED_SERVICE_CALL_ARGUMENTS: Final = [
 ]
 
 AVAILABLE_MODELS: Final = [
-    "anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "anthropic.claude-3-sonnet-20240229-v1:0",
-    "anthropic.claude-3-haiku-20240307-v1:0",
-    "meta.llama3-70b-instruct-v1:0",
-    "meta.llama3-8b-instruct-v1:0",
-    "mistral.mistral-7b-instruct-v0:2",
-    "mistral.mixtral-8x7b-instruct-v0:1",
+    "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "us.anthropic.claude-haiku-4-5-20251001-v1:0",
 ]
 
 RECOMMENDED_MODELS: Final = AVAILABLE_MODELS
