@@ -198,6 +198,14 @@ class BedrockConversationOptionsFlow(config_entries.OptionsFlow):
             if api.id != "nlsql"  # Exclude nlsql as it requires special setup
         ]
         
+        # Ensure we always have at least the default API in the list
+        if HOME_LLM_API_ID not in llm_api_ids:
+            llm_api_ids.append(HOME_LLM_API_ID)
+        
+        # If list is still empty, add a fallback
+        if not llm_api_ids:
+            llm_api_ids = [HOME_LLM_API_ID]
+        
         options_schema = vol.Schema({
             vol.Optional(
                 CONF_MODEL_ID,
