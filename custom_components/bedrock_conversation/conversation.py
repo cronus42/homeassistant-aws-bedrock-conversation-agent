@@ -185,21 +185,37 @@ class BedrockConversationEntity(
                     stop_reason = response.get("stopReason")
                     content_blocks = response.get("content", [])
                     
+                    _LOGGER.debug(
+                        "Bedrock response - stop_reason: %s, content_blocks: %d",
+                        stop_reason, len(content_blocks)
+                    )
+                    
                     # Extract text and tool uses
                     response_text = ""
                     tool_calls = []
+                    tool_use_ids = {}  # Map tool_call to Bedrock's tool_use_id
                     
                     for block in content_blocks:
                         if "text" in block:
                             response_text += block["text"]
                         elif "toolUse" in block:
                             tool_use = block["toolUse"]
-                            tool_calls.append(
-                                llm.ToolInput(
-                                    tool_name=tool_use["name"],
-                                    tool_args=tool_use.get("input", {})
-                                )
+                            # Bedrock returns the tool use ID we need to reference later
+                            tool_use_id = tool_use.get("toolUseId")
+                            
+                            tool_input = llm.ToolInput(
+                                tool_name=tool_use["name"],
+                                tool_args=tool_use.get("input", {})
                             )
+                            tool_calls.append(tool_input)
+                            
+                            # Store the mapping from tool_input to Bedrock's ID
+                            if tool_use_id:
+                                tool_use_ids[id(tool_input)] = tool_use_id
+                                _LOGGER.debug(
+                                    "Found tool use '%s' with ID: %s",
+                                    tool_use["name"], tool_use_id
+                                )
                     
                     # Add assistant response to history
                     if response_text or tool_calls:
@@ -224,34 +240,48 @@ class BedrockConversationEntity(
                     tool_iteration_results = []
                     for tool_call in tool_calls:
                         try:
-                            tool_result = await llm.async_call_tool(
-                                self.hass,
-                                llm_api,
-                                tool_call,
-                                user_input.as_llm_context(DOMAIN)
+                            _LOGGER.debug(
+                                "Executing tool: %s with args: %s",
+                                tool_call.tool_name, tool_call.tool_args
+                            )
+                            
+                            tool_result = await llm_api.async_call_tool(tool_call)
+                            
+                            # Use the Bedrock tool_use_id if available, otherwise fallback
+                            tool_call_id = tool_use_ids.get(id(tool_call), f"tool_{id(tool_call)}")
+                            
+                            _LOGGER.debug(
+                                "Tool %s completed with result: %s (using ID: %s)",
+                                tool_call.tool_name, tool_result, tool_call_id
                             )
                             
                             tool_iteration_results.append(
                                 conversation.ToolResultContent(
                                     agent_id=agent_id,
-                                    tool_call_id=f"tool_{id(tool_call)}",
+                                    tool_call_id=tool_call_id,
                                     tool_name=tool_call.tool_name,
-                                    result=tool_result
+                                    tool_result=tool_result
                                 )
                             )
                         except Exception as err:
                             _LOGGER.error("Error executing tool %s: %s", tool_call.tool_name, err)
+                            tool_call_id = tool_use_ids.get(id(tool_call), f"tool_{id(tool_call)}")
                             tool_iteration_results.append(
                                 conversation.ToolResultContent(
                                     agent_id=agent_id,
-                                    tool_call_id=f"tool_{id(tool_call)}",
+                                    tool_call_id=tool_call_id,
                                     tool_name=tool_call.tool_name,
-                                    result={"error": str(err)}
+                                    tool_result={"error": str(err)}
                                 )
                             )
                     
                     # Add tool results to history
                     message_history.extend(tool_iteration_results)
+                    
+                    _LOGGER.debug(
+                        "Iteration %d complete, added %d tool results to history",
+                        tool_iterations, len(tool_iteration_results)
+                    )
                     
                     tool_iterations += 1
                     
