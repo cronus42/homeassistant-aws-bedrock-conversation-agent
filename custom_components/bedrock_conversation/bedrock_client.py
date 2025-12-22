@@ -75,10 +75,11 @@ class BedrockClient:
         """Initialize the client."""
         self.hass = hass
         self.entry = entry
-        self._setup_bedrock_client()
+        self._bedrock_runtime = None
+        self._client_lock = None
 
-    def _setup_bedrock_client(self) -> None:
-        """Set up the AWS Bedrock client."""
+    def _create_bedrock_client(self) -> Any:
+        """Create the AWS Bedrock client (runs in executor)."""
         options = self.entry.options
         
         # Get AWS credentials from config entry
@@ -99,8 +100,24 @@ class BedrockClient:
             region_name=aws_region,
         )
         
-        self._bedrock_runtime = session.client('bedrock-runtime')
+        bedrock_runtime = session.client('bedrock-runtime')
         _LOGGER.debug("Bedrock client initialized with region %s", aws_region)
+        return bedrock_runtime
+
+    async def _ensure_client(self) -> None:
+        """Ensure the Bedrock client is initialized (lazy initialization)."""
+        if self._bedrock_runtime is None:
+            if self._client_lock is None:
+                import asyncio
+                self._client_lock = asyncio.Lock()
+            
+            async with self._client_lock:
+                # Double-check after acquiring lock
+                if self._bedrock_runtime is None:
+                    _LOGGER.debug("Creating Bedrock client in executor")
+                    self._bedrock_runtime = await self.hass.async_add_executor_job(
+                        self._create_bedrock_client
+                    )
 
     def _get_exposed_entities(self) -> list[DeviceInfo]:
         """Get all exposed entities with their information."""
@@ -410,6 +427,9 @@ class BedrockClient:
         options: dict[str, Any]
     ) -> dict[str, Any]:
         """Generate a response from Bedrock."""
+        # Ensure client is initialized before use
+        await self._ensure_client()
+        
         model_id = options.get(CONF_MODEL_ID, DEFAULT_MODEL_ID)
         max_tokens = options.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS)
         temperature = options.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE)
