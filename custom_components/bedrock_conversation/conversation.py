@@ -143,7 +143,7 @@ class BedrockConversationEntity(
             # Generate or refresh system prompt
             if len(message_history) == 0 or refresh_system_prompt:
                 try:
-                    system_prompt_text = self.client._generate_system_prompt(
+                    system_prompt_text = await self.client._generate_system_prompt(
                         raw_prompt, llm_api, options
                     )
                     system_prompt = conversation.SystemContent(content=system_prompt_text)

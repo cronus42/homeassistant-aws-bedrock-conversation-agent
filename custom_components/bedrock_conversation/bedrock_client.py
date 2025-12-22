@@ -219,7 +219,7 @@ class BedrockClient:
         
         return devices
 
-    def _generate_system_prompt(
+    async def _generate_system_prompt(
         self,
         prompt_template: str,
         llm_api: llm.APIInstance | None,

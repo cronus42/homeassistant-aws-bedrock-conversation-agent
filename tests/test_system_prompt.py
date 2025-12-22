@@ -53,7 +53,7 @@ async def test_system_prompt_includes_device_info(hass: HomeAssistant):
             ]
             
             # Generate system prompt
-            system_prompt = client._generate_system_prompt(
+            system_prompt = await client._generate_system_prompt(
                 DEFAULT_PROMPT,
                 None,
                 {}
