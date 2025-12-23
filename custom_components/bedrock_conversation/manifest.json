@@ -1,7 +1,7 @@
 {
   "domain": "bedrock_conversation",
   "name": "AWS Bedrock Conversation",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "codeowners": [
     "cronus@stolenshoe.com"
   ],

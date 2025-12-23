@@ -406,7 +406,7 @@ class BedrockClient:
                 tool_result_block = {
                     "type": "tool_result",
                     "tool_use_id": content.tool_call_id,
-                    "content": [{"type": "json", "json": content.result}]
+                    "content": [{"type": "json", "json": content.tool_result}]
                 }
                 
                 if messages and messages[-1]["role"] == "user":
