@@ -369,6 +369,25 @@ class BedrockClient:
         """Convert Home Assistant conversation to Bedrock message format."""
         messages = []
         
+        # First pass: build a mapping of tool_call identity to actual Bedrock tool_use_id
+        # by looking at ToolResultContent entries which have the correct IDs
+        tool_call_to_id = {}
+        for idx, content in enumerate(conversation_content):
+            if isinstance(content, conversation.AssistantContent) and content.tool_calls:
+                # Look ahead for corresponding ToolResultContent entries
+                for tool_call in content.tool_calls:
+                    # Search forward for matching ToolResultContent
+                    for future_idx in range(idx + 1, len(conversation_content)):
+                        future_content = conversation_content[future_idx]
+                        if isinstance(future_content, conversation.ToolResultContent):
+                            if future_content.tool_name == tool_call.tool_name:
+                                # Found the corresponding tool result
+                                tool_call_to_id[id(tool_call)] = future_content.tool_call_id
+                                break
+                        # Stop searching if we hit another AssistantContent (new turn)
+                        elif isinstance(future_content, conversation.AssistantContent):
+                            break
+        
         for content in conversation_content:
             if isinstance(content, conversation.SystemContent):
                 # System prompt is handled separately in Bedrock
@@ -388,9 +407,11 @@ class BedrockClient:
                 
                 if content.tool_calls:
                     for tool_call in content.tool_calls:
+                        # Use the actual Bedrock tool_use_id if we found it, otherwise fallback
+                        tool_use_id = tool_call_to_id.get(id(tool_call), f"tool_{id(tool_call)}")
                         message_content.append({
                             "type": "tool_use",
-                            "id": f"tool_{id(tool_call)}",
+                            "id": tool_use_id,
                             "name": tool_call.tool_name,
                             "input": tool_call.tool_args
                         })
