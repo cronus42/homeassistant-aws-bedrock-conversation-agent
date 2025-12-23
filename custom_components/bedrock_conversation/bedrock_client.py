@@ -1,6 +1,7 @@
 """AWS Bedrock client for conversation agents."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from typing import Any
@@ -485,7 +486,15 @@ class BedrockClient:
                 # Read the response body in the executor thread to avoid blocking
                 return json.loads(response['body'].read())
             
-            response_body = await self.hass.async_add_executor_job(invoke_and_read)
+            # Add timeout protection for Bedrock API calls
+            try:
+                async with asyncio.timeout(30.0):
+                    response_body = await self.hass.async_add_executor_job(invoke_and_read)
+            except asyncio.TimeoutError:
+                error_msg = "Bedrock API call timed out after 30 seconds"
+                _LOGGER.error("⏱️ %s", error_msg)
+                raise HomeAssistantError(error_msg)
+            
             _LOGGER.info("📥 Received response from Bedrock (stop_reason: %s)", response_body.get('stopReason'))
             
             return response_body

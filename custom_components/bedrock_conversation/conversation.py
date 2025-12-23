@@ -264,7 +264,14 @@ class BedrockConversationEntity(
                                 tool_call.tool_name, tool_call.tool_args
                             )
                             
-                            tool_result = await llm_api.async_call_tool(tool_call)
+                            # Add timeout protection to prevent indefinite hangs
+                            try:
+                                async with asyncio.timeout(10.0):
+                                    tool_result = await llm_api.async_call_tool(tool_call)
+                            except asyncio.TimeoutError:
+                                error_msg = f"Tool call timed out after 10 seconds"
+                                _LOGGER.error("⏱️ [%d/%d] %s", idx + 1, len(tool_calls), error_msg)
+                                tool_result = {"error": error_msg}
                             
                             # Use the Bedrock tool_use_id if available, otherwise fallback
                             tool_call_id = tool_use_ids.get(id(tool_call), f"tool_{id(tool_call)}")
