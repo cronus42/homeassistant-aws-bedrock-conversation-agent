@@ -249,7 +249,13 @@ class BedrockConversationEntity(
                         block_type = block.get("type")
                         
                         if block_type == "text":
-                            response_text += block.get("text", "")
+                            text_content = block.get("text", "")
+                            _LOGGER.info("📝 EXTRACTED TEXT BLOCK (len=%d): %r", len(text_content), text_content[:200] if len(text_content) > 200 else text_content)
+                            # Log character codes for debugging
+                            if text_content:
+                                char_codes = [ord(c) for c in text_content[:50]]
+                                _LOGGER.debug("Character codes: %s", char_codes)
+                            response_text += text_content
                         elif block_type == "tool_use":
                             # Bedrock returns tool use with snake_case fields
                             tool_use_id = block.get("id")
@@ -282,9 +288,17 @@ class BedrockConversationEntity(
                     
                     # If no tool calls or stop reason is not tool_use, we're done
                     if stop_reason != "tool_use" or not tool_calls:
-                        _LOGGER.info("✅ Conversation complete. Response: %s", response_text.strip()[:100])
+                        final_text = response_text.strip()
+                        _LOGGER.info("✅ Conversation complete. Response length: %d chars", len(final_text))
+                        _LOGGER.info("Response preview: %r", final_text[:200])
+                        
+                        # Check for control characters that might cause display issues
+                        control_chars = [c for c in final_text if ord(c) < 32 and c not in '\n\r\t']
+                        if control_chars:
+                            _LOGGER.warning("⚠️ Found control characters in response: %s", [hex(ord(c)) for c in control_chars[:10]])
+                        
                         intent_response = intent.IntentResponse(language=user_input.language)
-                        intent_response.async_set_speech(response_text.strip())
+                        intent_response.async_set_speech(final_text)
                         return conversation.ConversationResult(
                             response=intent_response,
                             conversation_id=user_input.conversation_id

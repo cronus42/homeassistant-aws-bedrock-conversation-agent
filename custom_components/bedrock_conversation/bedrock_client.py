@@ -403,10 +403,22 @@ class BedrockClient:
             
             elif isinstance(content, conversation.ToolResultContent):
                 # Tool results go in user messages in Bedrock
+                # Convert tool result to proper content format
+                # If it's a dict/object, send as JSON text; otherwise send as text
+                tool_result_data = content.tool_result
+                if isinstance(tool_result_data, dict):
+                    # For dict results, serialize to text to avoid confusion
+                    import json as json_module
+                    result_text = json_module.dumps(tool_result_data)
+                    tool_result_content = [{"type": "text", "text": result_text}]
+                else:
+                    # For string results, send as text
+                    tool_result_content = [{"type": "text", "text": str(tool_result_data)}]
+                
                 tool_result_block = {
                     "type": "tool_result",
                     "tool_use_id": content.tool_call_id,
-                    "content": [{"type": "json", "json": content.tool_result}]
+                    "content": tool_result_content
                 }
                 
                 if messages and messages[-1]["role"] == "user":
@@ -484,7 +496,38 @@ class BedrockClient:
                     body=json.dumps(request_body)
                 )
                 # Read the response body in the executor thread to avoid blocking
-                return json.loads(response['body'].read())
+                # The StreamingBody must be fully consumed in one go to avoid corruption
+                body_stream = response['body']
+                
+                # Read all chunks to ensure we get the complete response
+                chunks = []
+                while True:
+                    chunk = body_stream.read(8192)  # Read in 8KB chunks
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+                
+                response_bytes = b''.join(chunks)
+                _LOGGER.debug("📦 Response bytes length: %d", len(response_bytes))
+                
+                # Decode to UTF-8 string
+                response_text = response_bytes.decode('utf-8')
+                _LOGGER.debug("📝 Response text length: %d", len(response_text))
+                
+                # Parse JSON
+                parsed_response = json.loads(response_text)
+                
+                # Log first content block if available for debugging
+                if 'content' in parsed_response and len(parsed_response['content']) > 0:
+                    first_block = parsed_response['content'][0]
+                    if first_block.get('type') == 'text':
+                        text_preview = first_block.get('text', '')[:200]
+                        _LOGGER.info("📄 RAW BEDROCK TEXT PREVIEW: %r", text_preview)
+                        # Also log the character codes to check for corruption
+                        char_codes = [ord(c) for c in text_preview[:50]]
+                        _LOGGER.debug("Character codes: %s", char_codes)
+                
+                return parsed_response
             
             # Add timeout protection for Bedrock API calls
             try:
