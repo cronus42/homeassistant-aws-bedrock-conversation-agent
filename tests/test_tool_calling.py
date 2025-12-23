@@ -67,17 +67,17 @@ def conversation_entity(mock_hass, mock_config_entry, mock_bedrock_client):
 def create_bedrock_response_with_tool_use(tool_use_id, tool_name, tool_args):
     """Create a mock Bedrock response with a tool use."""
     return {
-        "stopReason": "tool_use",
+        "stop_reason": "tool_use",
         "content": [
             {
+                "type": "text",
                 "text": "I'll turn on that light for you."
             },
             {
-                "toolUse": {
-                    "toolUseId": tool_use_id,
-                    "name": tool_name,
-                    "input": tool_args
-                }
+                "type": "tool_use",
+                "id": tool_use_id,
+                "name": tool_name,
+                "input": tool_args
             }
         ]
     }
@@ -86,9 +86,10 @@ def create_bedrock_response_with_tool_use(tool_use_id, tool_name, tool_args):
 def create_bedrock_final_response(text):
     """Create a mock Bedrock final response."""
     return {
-        "stopReason": "end_turn",
+        "stop_reason": "end_turn",
         "content": [
             {
+                "type": "text",
                 "text": text
             }
         ]
@@ -261,16 +262,15 @@ async def test_tool_use_without_id_fallback(conversation_entity, mock_bedrock_cl
     mock_llm_api = MagicMock()
     mock_llm_api.tools = [MagicMock()]
     
-    # Response without toolUseId (edge case)
+    # Response without tool use id (edge case)
     first_response = {
-        "stopReason": "tool_use",
+        "stop_reason": "tool_use",
         "content": [
             {
-                "toolUse": {
-                    # Missing toolUseId
-                    "name": "HassCallService",
-                    "input": {"service": "light.turn_on", "target_device": "light.test"}
-                }
+                "type": "tool_use",
+                # Missing id field
+                "name": "HassCallService",
+                "input": {"service": "light.turn_on", "target_device": "light.test"}
             }
         ]
     }

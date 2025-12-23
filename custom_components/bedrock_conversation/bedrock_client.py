@@ -496,12 +496,13 @@ class BedrockClient:
                 raise HomeAssistantError(error_msg)
             
             # Log the full response for debugging
-            stop_reason = response_body.get('stopReason')
+            # Note: Bedrock uses snake_case (stop_reason), not camelCase (stopReason)
+            stop_reason = response_body.get('stop_reason')
             _LOGGER.info("📥 Received response from Bedrock (stop_reason: %s)", stop_reason)
             
-            # Log warning if stopReason is missing
+            # Log warning if stop_reason is missing
             if stop_reason is None:
-                _LOGGER.warning("⚠️ Bedrock response missing stopReason field. Full response keys: %s", list(response_body.keys()))
+                _LOGGER.warning("⚠️ Bedrock response missing stop_reason field. Full response keys: %s", list(response_body.keys()))
                 _LOGGER.debug("Full response body: %s", response_body)
             
             return response_body

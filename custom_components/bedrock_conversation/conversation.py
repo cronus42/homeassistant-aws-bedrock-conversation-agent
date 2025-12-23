@@ -197,7 +197,8 @@ class BedrockConversationEntity(
                     )
                     
                     # Parse response
-                    stop_reason = response.get("stopReason")
+                    # Note: Bedrock uses snake_case (stop_reason), not camelCase (stopReason)
+                    stop_reason = response.get("stop_reason")
                     content_blocks = response.get("content", [])
                     
                     _LOGGER.info(
@@ -243,16 +244,19 @@ class BedrockConversationEntity(
                     tool_use_ids = {}  # Map tool_call to Bedrock's tool_use_id
                     
                     for block in content_blocks:
-                        if "text" in block:
-                            response_text += block["text"]
-                        elif "toolUse" in block:
-                            tool_use = block["toolUse"]
-                            # Bedrock returns the tool use ID we need to reference later
-                            tool_use_id = tool_use.get("toolUseId")
+                        block_type = block.get("type")
+                        
+                        if block_type == "text":
+                            response_text += block.get("text", "")
+                        elif block_type == "tool_use":
+                            # Bedrock returns tool use with snake_case fields
+                            tool_use_id = block.get("id")
+                            tool_name = block.get("name")
+                            tool_input_data = block.get("input", {})
                             
                             tool_input = llm.ToolInput(
-                                tool_name=tool_use["name"],
-                                tool_args=tool_use.get("input", {})
+                                tool_name=tool_name,
+                                tool_args=tool_input_data
                             )
                             tool_calls.append(tool_input)
                             
@@ -261,7 +265,7 @@ class BedrockConversationEntity(
                                 tool_use_ids[id(tool_input)] = tool_use_id
                                 _LOGGER.info(
                                     "🔧 Found tool use '%s' with ID: %s, args: %s",
-                                    tool_use["name"], tool_use_id, tool_use.get("input", {})
+                                    tool_name, tool_use_id, tool_input_data
                                 )
                     
                     # Add assistant response to history
