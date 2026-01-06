@@ -183,7 +183,8 @@ class BedrockConversationOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        # self.config_entry = config_entry
+        self._conf_app_id: str | None = None
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -230,7 +231,7 @@ class BedrockConversationOptionsFlow(config_entries.OptionsFlow):
                 default=self.config_entry.options.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS)
             ): selector.NumberSelector(
                 selector.NumberSelectorConfig(
-                    min=100, max=100000, step=100, mode=selector.NumberSelectorMode.BOX
+                    min=0, max=100000, step=100, mode=selector.NumberSelectorMode.BOX
                 )
             ),
             vol.Optional(
