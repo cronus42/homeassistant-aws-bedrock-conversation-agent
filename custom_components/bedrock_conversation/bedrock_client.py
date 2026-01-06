@@ -466,7 +466,7 @@ class BedrockClient:
         await self._ensure_client()
         
         model_id = options.get(CONF_MODEL_ID, DEFAULT_MODEL_ID)
-        max_tokens = options.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS)
+        max_tokens = int(options.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS))
         temperature = options.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE)
         top_p = options.get(CONF_TOP_P, DEFAULT_TOP_P)
         top_k = options.get(CONF_TOP_K, DEFAULT_TOP_K)
